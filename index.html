@@ -92,6 +92,10 @@
         .option.selected {
             background: linear-gradient(90deg, rgba(240,147,251,0.3) 0%, rgba(245,87,108,0.3) 100%);
             border-color: #f5576c;
+            box-shadow: 0 0 15px rgba(245,87,108,0.3);
+        }
+        .option:active {
+            transform: scale(0.98);
         }
         .result-card {
             display: none;
@@ -180,6 +184,10 @@
         }
         .btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(240,147,251,0.4);
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
         .btn-secondary {
             background: transparent;
