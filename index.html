@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你该换工作，还是换活法？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: #888;
+            font-size: 14px;
+        }
+        .progress-bar {
+            background: #333;
+            border-radius: 10px;
+            height: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        .question-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            display: none;
+        }
+        .question-card.active {
+            display: block;
+        }
+        .question-number {
+            color: #f5576c;
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .option:hover {
+            background: rgba(245,87,108,0.2);
+            border-color: #f5576c;
+            transform: translateX(5px);
+        }
+        .option.selected {
+            background: linear-gradient(90deg, rgba(240,147,251,0.3) 0%, rgba(245,87,108,0.3) 100%);
+            border-color: #f5576c;
+        }
+        .result-card {
+            display: none;
+            text-align: center;
+        }
+        .result-card.active {
+            display: block;
+        }
+        .result-type {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 20px 0;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .result-subtitle {
+            color: #888;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .indices {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .index-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .index-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f5576c;
+        }
+        .index-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .radar-container {
+            margin: 30px auto;
+            max-width: 300px;
+        }
+        .analysis-section {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .analysis-section h3 {
+            color: #f093fb;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .analysis-section p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .warning-box {
+            background: rgba(245,87,108,0.15);
+            border: 1px solid rgba(245,87,108,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning-box p {
+            color: #f5576c;
+            font-size: 14px;
+        }
+        .btn {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .start-screen, .result-screen {
+            display: none;
+        }
+        .start-screen.active, .result-screen.active {
+            display: block;
+        }
+        .start-info {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .start-info h3 {
+            color: #f093fb;
+            margin-bottom: 15px;
+        }
+        .start-info p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .share-tip {
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页面 -->
+        <div class="start-screen active" id="startScreen">
+            <div class="header">
+                <h1>🔄 你该换工作，还是换活法？</h1>
+                <p>职业路径诊断测试</p>
+            </div>
+            <div class="start-info">
+                <h3>📋 测试说明</h3>
+                <p>本测试共 <strong>30道题</strong>，约需3-5分钟</p>
+                <p>请根据你的第一反应选择答案</p>
+                <p>测试将分析你的职业困惑类型</p>
+                <p class="share-tip">⚠️ 纯趣味测试，非科学评估，结果仅供参考</p>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" onclick="startTest()">开始测试 →</button>
+            </div>
+        </div>
+
+        <!-- 测试页面 -->
+        <div class="question-card" id="questionCard">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="question-number" id="questionNumber">第 1/30 题</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="optionsContainer"></div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div class="result-screen" id="resultScreen">
+            <div class="header">
+                <h1>📊 你的职业路径诊断</h1>
+            </div>
+
+            <div class="result-type" id="resultType"></div>
+            <div class="result-subtitle" id="resultSubtitle"></div>
+
+            <div class="indices" id="indicesContainer"></div>
+
+            <div class="radar-container">
+                <canvas id="radarCanvas" width="300" height="300"></canvas>
+            </div>
+
+            <div class="analysis-section" id="analysisSection"></div>
+
+            <div class="warning-box" id="warningBox"></div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn" onclick="shareResult()">分享结果</button>
+                <button class="btn btn-secondary" onclick="restartTest()">重新测试</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                id: 1,
+                text: "如果未来三年必须继续从事当前方向，你的第一反应更接近：",
+                options: [
+                    { text: "A. 有种窒息感", type: "switch" },
+                    { text: "B. 虽然累，但还有期待", type: "stay" },
+                    { text: "C. 觉得自己可能错过别的机会", type: "switch" },
+                    { text: "D. 想把现在经验用到别的领域", type: "integrate" }
+                ]
+            },
+            {
+                id: 2,
+                text: "最近让你最羡慕的人通常是：",
+                options: [
+                    { text: "A. 完全转行成功的人", type: "switch" },
+                    { text: "B. 在专业领域做到顶尖的人", type: "stay" },
+                    { text: "C. 抓住风口快速成长的人", type: "opportunity" },
+                    { text: "D. 能跨领域发展的人", type: "integrate" }
+                ]
+            },
+            {
+                id: 3,
+                text: "当别人问："你喜欢现在做的事吗？" 你的真实感受更接近：",
+                options: [
+                    { text: "A. 说不上喜欢", type: "switch" },
+                    { text: "B. 喜欢，但不够满意", type: "stay" },
+                    { text: "C. 不确定是不是喜欢", type: "confused" },
+                    { text: "D. 喜欢其中一部分", type: "integrate" }
+                ]
+            },
+            {
+                id: 4,
+                text: "如果突然获得一笔钱，未来一年不用考虑收入，你最想做的是：",
+                options: [
+                    { text: "A. 尝试完全不同的方向", type: "switch" },
+                    { text: "B. 深入研究现在领域", type: "stay" },
+                    { text: "C. 探索各种可能性", type: "explore" },
+                    { text: "D. 做交叉型项目", type: "integrate" }
+                ]
+            },
+            {
+                id: 5,
+                text: "过去一年最常出现的念头是：",
+                options: [
+                    { text: "A. 我是不是入错行了", type: "switch" },
+                    { text: "B. 我是不是还没做到位", type: "stay" },
+                    { text: "C. 我是不是错过什么机会", type: "opportunity" },
+                    { text: "D. 我是不是可以换种方式做", type: "integrate" }
+                ]
+            },
+            {
+                id: 6,
+                text: "面对行业资讯时，你最关注的是：",
+                options: [
+                    { text: "A. 其他行业动态", type: "switch" },
+                    { text: "B. 本行业深度内容", type: "stay" },
+                    { text: "C. 新兴趋势和风口", type: "opportunity" },
+                    { text: "D. 跨界案例", type: "integrate" }
+                ]
+            },
+            {
+                id: 7,
+                text: "如果重新开始职业生涯，你最想改变的是：",
+                options: [
+                    { text: "A. 行业选择", type: "switch" },
+                    { text: "B. 成长速度", type: "stay" },
+                    { text: "C. 决策路径", type: "explore" },
+                    { text: "D. 能力组合", type: "integrate" }
+                ]
+            },
+            {
+                id: 8,
+                text: "你最害怕的事情是：",
+                options: [
+                    { text: "A. 在错误赛道耗十年", type: "switch" },
+                    { text: "B. 半途放弃本可成功的积累", type: "stay" },
+                    { text: "C. 错过未来机会", type: "opportunity" },
+                    { text: "D. 经验无法转化价值", type: "integrate" }
+                ]
+            },
+            {
+                id: 9,
+                text: "最近一次真正兴奋地投入工作，更像因为：",
+                options: [
+                    { text: "A. 做了全新内容", type: "switch" },
+                    { text: "B. 解决了高难度问题", type: "stay" },
+                    { text: "C. 看见新的可能", type: "opportunity" },
+                    { text: "D. 组合了不同能力", type: "integrate" }
+                ]
+            },
+            {
+                id: 10,
+                text: "你觉得自己最大的遗憾是：",
+                options: [
+                    { text: "A. 没早点换方向", type: "switch" },
+                    { text: "B. 没早点深耕", type: "stay" },
+                    { text: "C. 总在犹豫", type: "confused" },
+                    { text: "D. 没整合已有经验", type: "integrate" }
+                ]
+            },
+            {
+                id: 11,
+                text: "如果别人完全复制你的职业路径，你会觉得：",
+                options: [
+                    { text: "A. 不建议", type: "switch" },
+                    { text: "B. 值得", type: "stay" },
+                    { text: "C. 看情况", type: "confused" },
+                    { text: "D. 可以优化", type: "integrate" }
+                ]
+            },
+            {
+                id: 12,
+                text: "面对职业瓶颈，你更倾向：",
+                options: [
+                    { text: "A. 换赛道", type: "switch" },
+                    { text: "B. 升级能力", type: "stay" },
+                    { text: "C. 再观察", type: "confused" },
+                    { text: "D. 找新的应用场景", type: "integrate" }
+                ]
+            },
+            {
+                id: 13,
+                text: "下面哪句话最容易击中你？",
+                options: [
+                    { text: "A. 努力方向错了，比不努力更可怕", type: "switch" },
+                    { text: "B. 很多人离成功只差最后几年", type: "stay" },
+                    { text: "C. 焦虑常常伪装成梦想", type: "confused" },
+                    { text: "D. 能力迁移比重新开始更重要", type: "integrate" }
+                ]
+            },
+            {
+                id: 14,
+                text: "你最难回答的问题是：",
+                options: [
+                    { text: "A. 为什么还留在这里", type: "switch" },
+                    { text: "B. 为什么还没做到更好", type: "stay" },
+                    { text: "C. 为什么总想改变", type: "confused" },
+                    { text: "D. 为什么总想尝试不同东西", type: "integrate" }
+                ]
+            },
+            {
+                id: 15,
+                text: "未来五年，你最想获得的是：",
+                options: [
+                    { text: "A. 更适合自己的方向", type: "switch" },
+                    { text: "B. 更强的专业壁垒", type: "stay" },
+                    { text: "C. 更确定的人生选择", type: "explore" },
+                    { text: "D. 更自由的职业组合", type: "integrate" }
+                ]
+            },
+            {
+                id: 16,
+                text: "如果现在必须做决定，你最想知道的是：",
+                options: [
+                    { text: "A. 我是不是待错赛道了", type: "switch" },
+                    { text: "B. 我是不是该继续深耕", type: "stay" },
+                    { text: "C. 我是不是被焦虑影响了", type: "confused" },
+                    { text: "D. 我是不是该重组职业路径", type: "integrate" }
+                ]
+            },
+            {
+                id: 17,
+                text: "过去三年，你最明显的变化是：",
+                options: [
+                    { text: "A. 越来越确定自己不适合这里", type: "switch" },
+                    { text: "B. 越来越专业", type: "stay" },
+                    { text: "C. 越来越焦虑", type: "confused" },
+                    { text: "D. 越来越擅长整合不同能力", type: "integrate" }
+                ]
+            },
+            {
+                id: 18,
+                text: "当别人夸你厉害时，你最认可的是：",
+                options: [
+                    { text: "A. 敢于改变", type: "switch" },
+                    { text: "B. 专业能力", type: "stay" },
+                    { text: "C. 学习能力", type: "explore" },
+                    { text: "D. 适应能力", type: "integrate" }
+                ]
+            },
+            {
+                id: 19,
+                text: "如果未来行业发生巨大变化，你觉得自己最大的优势是：",
+                options: [
+                    { text: "A. 重新开始的勇气", type: "switch" },
+                    { text: "B. 深厚积累", type: "stay" },
+                    { text: "C. 快速学习", type: "explore" },
+                    { text: "D. 可迁移能力", type: "integrate" }
+                ]
+            },
+            {
+                id: 20,
+                text: "下面哪种状态最让你痛苦？",
+                options: [
+                    { text: "A. 做不喜欢的事", type: "switch" },
+                    { text: "B. 做重复的事", type: "stay" },
+                    { text: "C. 不知道未来在哪", type: "confused" },
+                    { text: "D. 能力被局限", type: "integrate" }
+                ]
+            },
+            {
+                id: 21,
+                text: "你最害怕别人评价你：",
+                options: [
+                    { text: "A. 浪费人生", type: "switch" },
+                    { text: "B. 半途而废", type: "stay" },
+                    { text: "C. 没有方向", type: "confused" },
+                    { text: "D. 没有特色", type: "integrate" }
+                ]
+            },
+            {
+                id: 22,
+                text: "如果现在出现一个热门行业机会，你的第一反应是：",
+                options: [
+                    { text: "A. 我想试试", type: "switch" },
+                    { text: "B. 先研究长期价值", type: "stay" },
+                    { text: "C. 我会纠结", type: "confused" },
+                    { text: "D. 看是否能结合现有能力", type: "integrate" }
+                ]
+            },
+            {
+                id: 23,
+                text: "你认为职业成功最重要的是：",
+                options: [
+                    { text: "A. 选对赛道", type: "switch" },
+                    { text: "B. 长期积累", type: "stay" },
+                    { text: "C. 抓住机会", type: "opportunity" },
+                    { text: "D. 形成独特组合", type: "integrate" }
+                ]
+            },
+            {
+                id: 24,
+                text: "回顾过去几年，你最满意的是：",
+                options: [
+                    { text: "A. 终于看清不适合什么", type: "switch" },
+                    { text: "B. 持续积累能力", type: "stay" },
+                    { text: "C. 保持探索", type: "explore" },
+                    { text: "D. 经验越来越多元", type: "integrate" }
+                ]
+            },
+            {
+                id: 25,
+                text: "如果未来五年后回头看今天，你最担心的是：",
+                options: [
+                    { text: "A. 没早点离开", type: "switch" },
+                    { text: "B. 没坚持下去", type: "stay" },
+                    { text: "C. 总在犹豫", type: "confused" },
+                    { text: "D. 没利用好已有经验", type: "integrate" }
+                ]
+            },
+            {
+                id: 26,
+                text: "以下哪句话最像你的真实困惑？",
+                options: [
+                    { text: "A. 我是不是走错路了", type: "switch" },
+                    { text: "B. 我是不是还没走够远", type: "stay" },
+                    { text: "C. 我是不是被别人影响了", type: "confused" },
+                    { text: "D. 我是不是可以换种方式成功", type: "integrate" }
+                ]
+            },
+            {
+                id: 27,
+                text: "面对职业选择，你最常陷入：",
+                options: [
+                    { text: "A. 推翻重来", type: "switch" },
+                    { text: "B. 继续优化", type: "stay" },
+                    { text: "C. 反复比较", type: "confused" },
+                    { text: "D. 重组可能性", type: "integrate" }
+                ]
+            },
+            {
+                id: 28,
+                text: "你觉得自己最大的优势来自：",
+                options: [
+                    { text: "A. 敏锐感知不适合", type: "switch" },
+                    { text: "B. 长期投入", type: "stay" },
+                    { text: "C. 快速学习", type: "explore" },
+                    { text: "D. 跨界连接", type: "integrate" }
+                ]
+            },
+            {
+                id: 29,
+                text: "如果今天开始做副业，你最可能：",
+                options: [
+                    { text: "A. 完全换方向", type: "switch" },
+                    { text: "B. 继续深挖专业", type: "stay" },
+                    { text: "C. 跟着热点尝试", type: "opportunity" },
+                    { text: "D. 利用原有经验跨界", type: "integrate" }
+                ]
+            },
+            {
+                id: 30,
+                text: "下面哪种成功最吸引你？",
+                options: [
+                    { text: "A. 找到真正热爱的事业", type: "switch" },
+                    { text: "B. 在一个领域做到顶尖", type: "stay" },
+                    { text: "C. 抓住时代机会", type: "opportunity" },
+                    { text: "D. 创造独特职业模式", type: "integrate" }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+
+        function startTest() {
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('questionCard').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('questionNumber').textContent = `第 ${currentQuestion + 1}/30 题`;
+            document.getElementById('questionText').textContent = q.text;
+            document.getElementById('progressFill').style.width = `${((currentQuestion + 1) / 30) * 100}%`;
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = opt.text;
+                div.onclick = () => selectOption(index, opt.type);
+                container.appendChild(div);
+            });
+        }
+
+        function selectOption(index, type) {
+            answers[currentQuestion] = type;
+
+            // 标记选中状态
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+            });
+
+            // 1秒后自动下一题
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    currentQuestion++;
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 500);
+        }
+
+        function calculateResult() {
+            const scores = {
+                switch: 0,
+                stay: 0,
+                confused: 0,
+                integrate: 0,
+                explore: 0,
+                opportunity: 0
+            };
+
+            Object.values(answers).forEach(type => {
+                if (scores.hasOwnProperty(type)) {
+                    scores[type]++;
+                }
+            });
+
+            // 计算主要类型
+            const mainTypes = ['switch', 'stay', 'confused', 'integrate'];
+            let maxType = mainTypes[0];
+            let maxScore = scores[mainTypes[0]];
+
+            mainTypes.forEach(type => {
+                if (scores[type] > maxScore) {
+                    maxType = type;
+                    maxScore = scores[type];
+                }
+            });
+
+            return {
+                primaryType: maxType,
+                scores: scores
+            };
+        }
+
+        function showResult() {
+            document.getElementById('questionCard').classList.remove('active');
+            document.getElementById('resultScreen').classList.add('active');
+
+            const result = calculateResult();
+            const data = getResultData(result);
+
+            document.getElementById('resultType').textContent = data.title;
+            document.getElementById('resultSubtitle').textContent = data.subtitle;
+
+            // 渲染指数
+            const indicesHtml = data.indices.map(idx => `
+                <div class="index-item">
+                    <div class="index-value">${idx.value}</div>
+                    <div class="index-label">${idx.label}</div>
+                </div>
+            `).join('');
+            document.getElementById('indicesContainer').innerHTML = indicesHtml;
+
+            // 渲染雷达图
+            drawRadar(data.radarData);
+
+            // 渲染分析
+            const analysisHtml = data.analysis.map(a => `<p>${a}</p>`).join('');
+            document.getElementById('analysisSection').innerHTML = `
+                <h3>🔍 深度分析</h3>
+                ${analysisHtml}
+            `;
+
+            // 渲染警告
+            document.getElementById('warningBox').innerHTML = `<p>⚠️ ${data.warning}</p>`;
+        }
+
+        function getResultData(result) {
+            const typeData = {
+                switch: {
+                    title: "转型冲动型",
+                    subtitle: "你真正需要的不是换方向，而是认清这种冲动",
+                    indices: [
+                        { label: "转型冲动", value: result.scores.switch > 12 ? "高" : result.scores.switch > 8 ? "中" : "低" },
+                        { label: "深耕必要", value: result.scores.stay > 10 ? "高" : result.scores.stay > 6 ? "中" : "低" },
+                        { label: "焦虑指数", value: result.scores.confused > 8 ? "高" : result.scores.confused > 4 ? "中" : "低" },
+                        { label: "整合能力", value: result.scores.integrate > 8 ? "高" : result.scores.integrate > 4 ? "中" : "低" }
+                    ],
+                    radarData: [
+                        result.scores.switch * 4,
+                        result.scores.stay * 4,
+                        result.scores.confused * 5,
+                        result.scores.integrate * 5,
+                        result.scores.explore * 5,
+                        result.scores.opportunity * 5
+                    ],
+                    analysis: [
+                        `你的转型冲动指数达到 ${result.scores.switch}/30，这说明「换方向」这件事在你脑海里已经反复出现很多次了。`,
+                        `但真正的问题是：这种冲动是真的职业方向错误，还是你在逃避眼前的困难？`,
+                        `数据显示你的焦虑指数也不低（${result.scores.confused}次相关选择），这往往意味着你在用「换方向」来缓解焦虑，而不是真正找到了新方向。`,
+                        `建议你先做一件事：列出你现在工作里，最让你痛苦的三件事，和最让你有成就感的三件事。如果痛苦的事情可以解决，那先解决。如果不能，再考虑转型。`,
+                        `转型不是出路，真正的出路是：要么改变环境，要么改变自己面对环境的方式。`
+                    ],
+                    warning: "转型前先问自己：是这里真的不适合，还是我把这里当成了逃避的借口？"
+                },
+                stay: {
+                    title: "深耕积累型",
+                    subtitle: "你的问题是坚持不够，而不是方向错误",
+                    indices: [
+                        { label: "转型冲动", value: result.scores.switch > 10 ? "高" : result.scores.switch > 5 ? "中" : "低" },
+                        { label: "深耕必要", value: result.scores.stay > 12 ? "高" : result.scores.stay > 8 ? "中" : "低" },
+                        { label: "焦虑指数", value: result.scores.confused > 8 ? "高" : result.scores.confused > 4 ? "中" : "低" },
+                        { label: "整合能力", value: result.scores.integrate > 8 ? "高" : result.scores.integrate > 4 ? "中" : "低" }
+                    ],
+                    radarData: [
+                        result.scores.switch * 4,
+                        result.scores.stay * 4,
+                        result.scores.confused * 5,
+                        result.scores.integrate * 5,
+                        result.scores.explore * 5,
+                        result.scores.opportunity * 5
+                    ],
+                    analysis: [
+                        `你的深耕指数达到 ${result.scores.stay}/30，这说明你骨子里是愿意在一个方向上持续投入的人。`,
+                        `但你也有一部分整合型思维（${result.scores.integrate}次），这意味着你可能不是完全不想变，而是想把现有能力用到新的场景。`,
+                        `你的焦虑主要来自「看不到积累发生」。职业成长有一个特点：前几年增长缓慢，中间几年开始加速，后期才会爆发。`,
+                        `你现在可能正处于最煎熬的阶段：复利还没发生，但你已经怀疑这条路是否正确。`,
+                        `真正的问题是：你是在积累马上要爆发，还是在积累一个根本没有复利的技能？区分这两点，比继续坚持或放弃都重要。`
+                    ],
+                    warning: "你的问题往往不是选错路，而是在临界点前放弃。确认自己在正确的路上，然后给时间一点耐心。"
+                },
+                confused: {
+                    title: "方向迷茫型",
+                    subtitle: "你没有想清楚自己要什么，所以什么都想要",
+                    indices: [
+                        { label: "转型冲动", value: result.scores.switch > 10 ? "高" : result.scores.switch > 5 ? "中" : "低" },
+                        { label: "深耕必要", value: result.scores.stay > 10 ? "高" : result.scores.stay > 6 ? "中" : "低" },
+                        { label: "焦虑指数", value: result.scores.confused > 8 ? "高" : result.scores.confused > 4 ? "中" : "低" },
+                        { label: "整合能力", value: result.scores.integrate > 8 ? "高" : result.scores.integrate > 4 ? "中" : "低" }
+                    ],
+                    radarData: [
+                        result.scores.switch * 4,
+                        result.scores.stay * 4,
+                        result.scores.confused * 5,
+                        result.scores.integrate * 5,
+                        result.scores.explore * 5,
+                        result.scores.opportunity * 5
+                    ],
+                    analysis: [
+                        `你的焦虑指数达到 ${result.scores.confused}/30，这是所有类型里最高的。你最大的问题不是选择本身，而是选择前的焦虑和比较。`,
+                        `你会在「坚持」和「改变」之间反复横跳，因为你不知道哪个是对的。`,
+                        `这类人最常见的状态是：刷到别人成功的帖子就觉得自己该转，安静下来又觉得自己该坚持。`,
+                        `给你的建议是：减少外界信息的刺激，先把「我要什么」这个问题回答清楚。`,
+                        `一个简单的判断方法：想象三年后的今天，如果你留在这里，最坏的结果是什么？如果离开，最坏的结果是什么？哪个你能接受？`
+                    ],
+                    warning: "你不是选择困难，你是没有想清楚自己要什么。先把目标定清楚，选择自然会清晰。"
+                },
+                integrate: {
+                    title: "跨界整合型",
+                    subtitle: "你不缺能力，你缺的是把能力整合起来的框架",
+                    indices: [
+                        { label: "转型冲动", value: result.scores.switch > 10 ? "高" : result.scores.switch > 5 ? "中" : "低" },
+                        { label: "深耕必要", value: result.scores.stay > 10 ? "高" : result.scores.stay > 6 ? "中" : "低" },
+                        { label: "焦虑指数", value: result.scores.confused > 8 ? "高" : result.scores.confused > 4 ? "中" : "低" },
+                        { label: "整合能力", value: result.scores.integrate > 10 ? "高" : result.scores.integrate > 6 ? "中" : "低" }
+                    ],
+                    radarData: [
+                        result.scores.switch * 4,
+                        result.scores.stay * 4,
+                        result.scores.confused * 5,
+                        result.scores.integrate * 5,
+                        result.scores.explore * 5,
+                        result.scores.opportunity * 5
+                    ],
+                    analysis: [
+                        `你的整合指数达到 ${result.scores.integrate}/30，这是你最突出的能力特征。`,
+                        `你最大的优势是：能把不同领域的经验组合起来，创造新的可能性。这在这个碎片化的时代是非常稀缺的能力。`,
+                        `但你也有风险：太容易看到新的可能性，反而难以在一个方向上持续积累。`,
+                        `给你的建议是：不要在「怎么组合」上花太多时间，先确认「组合的目的是什么」。`,
+                        `跨界整合的关键不是整合本身，而是找到一个需要你这种独特组合的问题。找到那个问题，比任何能力都重要。`
+                    ],
+                    warning: "你的能力组合是独特的，但你需要找到一个值得这种组合的问题。"
+                }
+            };
+
+            return typeData[result.primaryType] || typeData.confused;
+        }
+
+        function drawRadar(data) {
+            const canvas = document.getElementById('radarCanvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = 150;
+            const centerY = 150;
+            const radius = 100;
+
+            ctx.clearRect(0, 0, 300, 300);
+
+            const labels = ['转型冲动', '深耕必要', '焦虑指数', '整合能力', '探索倾向', '机会感知'];
+            const maxValue = 100;
+
+            // 画背景圆
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            for (let i = 1; i <= 4; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius * i / 4, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // 画轴线
+            const angleStep = Math.PI * 2 / 6;
+            for (let i = 0; i < 6; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+                ctx.stroke();
+
+                // 标签
+                ctx.fillStyle = '#888';
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(labels[i], centerX + Math.cos(angle) * (radius + 25), centerY + Math.sin(angle) * (radius + 25));
+            }
+
+            // 画数据区域
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const value = Math.min(data[i], maxValue);
+                const x = centerX + Math.cos(angle) * (value / maxValue * radius);
+                const y = centerY + Math.sin(angle) * (value / maxValue * radius);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(240,147,251,0.3)';
+            ctx.fill();
+            ctx.strokeStyle = '#f093fb';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function shareResult() {
+            const text = `我刚做了「你该换工作，还是换活法？」测试，得出「${document.getElementById('resultType').textContent}」，你也来测测吧！`;
+            if (navigator.share) {
+                navigator.share({
+                    title: '你该换工作，还是换活法？',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(text + ' ' + window.location.href);
+                alert('结果已复制到剪贴板！');
+            }
+        }
+
+        function restartTest() {
+            currentQuestion = 0;
+            answers = {};
+            document.getElementById('resultScreen').classList.remove('active');
+            document.getElementById('startScreen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
